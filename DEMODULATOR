@@ -1,0 +1,13 @@
+function r = demodulator (in_signal)
+   T_symbol = 4 ;
+   T_c = 0.4 ;
+   F_c = 1 / T_c;
+   E_s = 1 ;
+   g = sqrt ( 2 * E_s / T_symbol);
+   [~, T_symbol] = size (in_signal);
+  
+   for t = 1 : T_symbol
+       y1(t, 1 ) = g * cos ( 2 * pi * F_c * t);
+   end
+   r = (in_signal * y1);
+end
