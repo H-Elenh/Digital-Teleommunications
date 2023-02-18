@@ -1,0 +1,141 @@
+%Δημιουργία πηγής Α
+L=10000; %gia arxh L=100, meta L=10000
+x1=rand(L,1);
+b=1;
+a1=0.9; %gia AR2(1) thelw a1=0.01
+a= [1;-a1];
+y = filter(b,a,x1);
+
+%Κωδικοποίηση της πηγης Α με PCM για Ν=2,4 και 8 bit:
+min_value = min(y);
+max_value = max(y);
+n = [2, 4, 8];
+x = length(y);
+xi = [1:1:x];
+
+[xq1,centers1,D1] = LloydMax(y,n(1),min_value,max_value);
+[xq2,centers2,D2] = LloydMax(y,n(2),min_value,max_value);
+[xq3,centers3,D3] = LloydMax(y,n(3),min_value,max_value);
+figure;
+
+subplot(2,2,1);
+plot(xi,y, '.')
+legend('Initial signal','Location','Best');
+
+subplot(2,2,2);
+plot(xi,centers1(xq1), '.')
+legend('2-bits','Location','Best');
+
+subplot(2,2,3);
+plot(xi,centers2(xq2), '.')
+legend('4-bits','Location','Best');
+
+subplot(2,2,4);
+plot(xi,centers3(xq3), '.')
+legend('8-bits','Location','Best');
+
+for i=1:100
+SQNR_Lloyd_2(i)=sqnr(y,D1(i));
+SQNR_Lloyd_4(i)=sqnr(y,D2(i));
+SQNR_Lloyd_8(i)=sqnr(y,D3(i));
+end
+
+z = [1:100];
+figure;
+
+subplot(2,2,1);
+plot(z,SQNR_Lloyd_2,'-');
+legend('2-bits','Location','Best');
+xlabel( 'Iterations' );
+ylabel( 'SQNR' );
+subplot(2,2,2);
+plot(z,SQNR_Lloyd_4,'-');
+legend('4-bits','Location','Best');
+xlabel( 'Iterations' );
+ylabel( 'SQNR' );
+
+subplot(2,2,3);
+plot(z,SQNR_Lloyd_8,'-');
+legend('8-bits','Location','Best');
+xlabel( 'Iterations' );
+ylabel( 'SQNR' );
+
+%SQNR
+function [SQNR] = sqnr(y, D)
+	SQNR = 10*log10(mean(y.^2)/D); % metatropi se db
+	return;
+end
+
+%Κωδικοποίηση ADM για Μ= 4
+
+encoded1 = adm_encoder(y1);
+decoded1 = adm_decoder(encoded1);
+z=[1:length(y1)];
+figure;
+subplot(2,1,1);
+plot(z,y1, '.')
+legend('Initial signal','Location','Best');
+
+subplot(2,1,2);
+plot(z,decoded1, '.')
+legend('ADM','Location','Best');
+
+D_adm=mean((y1-decoded1).^2);
+SQNR_adm=sqnr(y1,D_adm
+
+
+%Εντροπία
+%entropy
+p = hist(xq3,numel(xq3)); %genika gia xq(i)
+% remove zero entries in p
+p(p==0) = [];
+% normalize p so that sum(p) is one.
+p = p ./ numel(xq3);
+Ent = -sum(p.*log2(p))
+
+
+%Ερώτημα 2: Κωδικοποίηση πηγης Β
+% O κώδικας για τον κβαντιστή είναι ο ίδιος με το ερώτημα 1
+load cameraman.mat
+imshow(uint8(i));
+x1 = i(:);
+x1 = (x1-128)/128;
+x1 = 128*x1+128;
+M=256;
+N=256;
+y1=reshape(x1,M,N);
+imshow(uint8(y1));
+y=x1; %input vector
+min_value = min(y);
+max_value = max(y);
+n = [2, 4, 8];
+x = length(y);
+xi = [1:1:x];
+
+[xq1,centers1,D1] = LloydMax(y,n(1),min_value,max_value);
+[xq2,centers2,D2] = LloydMax(y,n(2),min_value,max_value);
+
+for i=1:100
+SQNR_Lloyd_2(i)=sqnr(y,D1(i));
+SQNR_Lloyd_4(i)=sqnr(y,D2(i));
+end
+z = [1:100];
+figure;
+subplot(2,2,1);
+plot(z,SQNR_Lloyd_2,'-');
+legend('2-bits','Location','Best');
+xlabel( 'Iterations' );
+ylabel( 'SQNR' );
+subplot(2,2,2);
+plot(z,SQNR_Lloyd_4,'-');
+legend('4-bits','Location','Best');
+xlabel( 'Iterations' );
+ylabel( 'SQNR' );
+
+%show output image
+y2=reshape(xq1,256,256); %N=2bits
+figure;
+imshow(uint8(y2));
+y2=reshape(xq2,256,256); %N=4bits
+figure;
+imshow(uint8(y2));
