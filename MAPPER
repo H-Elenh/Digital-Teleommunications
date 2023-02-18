@@ -1,0 +1,16 @@
+function symbs = mapper (input, M, gray)
+   Lb = length (input);
+   temp = mod (Lb, log2 (M));
+   new_bin_seq = input( 1 : (Lb - temp), :);
+   re_seq = reshape (new_bin_seq, log2 (M), (Lb - temp) /log2 (M));
+  
+   for i = 1 : (Lb - temp) / log2 (M)
+       symbs( i ) = bin2dec(num2str(re_seq(:, i )'));
+   end
+   if temp ~= 0
+       symbs( i + 1 ) = bin2dec(num2str(input((Lb - temp) + 1: Lb, 1 )'));
+   end
+   if gray == 1
+       symbs = bin2gray(symbs, 'pam' , M);
+   end
+end
