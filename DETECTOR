@@ -1,0 +1,13 @@
+function symbs = detector (r, M)
+   [r_lines, ~] = size (r);
+   for i = 1 : M
+       s( i , 1 ) = cos ( 2 * pi * i / M );
+   end
+   for j = 1 : r_lines
+       for i = 1 : M
+           temp( i , 1 ) = norm([r( j , 1 )] - s( i ,:));
+       end
+       [~, symbs( j , 1 )] = min(temp);
+   end
+   symbs = mod (symbs,M);
+end
