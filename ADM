@@ -1,0 +1,48 @@
+%ADM
+function [y] = adm_encoder(x)
+ % x = interp(x, 4);
+  y = zeros(size(x)); % Initialize encoded signal
+  delta = zeros(size(x)); % Initialize step size
+  delay = zeros(size(x) - 1); % Initialize delay
+   delta(1) = 0.1; % Initialize first step size
+  b = 1; % Initialize encoded value
+  if x(1) < 0 % Encode first sample
+      b = -1;
+  end
+  y(1) = b;
+  delay(1) = y(1) * delta(1); % Update delay
+    
+  for n = 2:size(x) % Encode remaining samples
+      e = x(n) - delay(n-1); % Compute prediction error
+      b = 1; % Initialize encoded value
+      if e < 0 % Quantize prediction error
+          b = -1;
+      end
+            
+      y(n) = b; % Update encoded signal
+      delta(n) = delta(n-1) * 1.5; % Update step size
+      if (b ~= y(n-1)) % Adjust step size based on encoded value
+          delta(n) = delta(n-1) / 1.5;
+      end
+        
+      delay(n) = b * delta(n) + delay(n-1); % Update delay
+  end
+end
+function [x] = adm_decoder(y)
+  x = zeros([size(y) 1]); % Initialize decoded signal
+  delta = zeros(size(y)); % Initialize step size
+  delta(1) = 0.1; % Initialize first step size
+   x(1) = delta(1); % Decode first sample
+  if y(1) == -1
+      x(1) = -delta(1);
+  end
+    
+  for n = 2:(size(y)) % Decode remaining samples
+      delta(n) = delta(n-1) * 1.5; % Update step size
+      if y(n) ~= y(n-1) % Adjust step size based on encoded value
+          delta(n) = delta(n-1) / 1.5;
+      end
+    
+      x(n) = y(n) * delta(n) + x(n-1); % Decode sample
+  end
+end
