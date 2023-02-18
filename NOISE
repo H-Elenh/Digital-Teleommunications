@@ -1,0 +1,10 @@
+function in_signal = noise (sm, SNR, M)
+   Es = 1 ;
+   Eb = Es / log2 (M);
+   N0 = Eb / ( 10 ^(SNR/ 10 ));
+   m = 0 ;
+   sig = sqrt (N0 / 2 );
+   [x, y] = size (sm);
+   noise = m + sig * randn (x, y);
+   in_signal = sm + noise;
+end
