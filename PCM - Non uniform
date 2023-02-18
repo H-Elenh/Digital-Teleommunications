@@ -1,0 +1,89 @@
+
+% PCM- Non-uniform Quantizer
+function [xq, centers, D]=LloydMax(x, N, min_value, max_value)
+	%xq : quantized output
+	%centers: centers of quantized areas
+	%D : mean Paramorfwsh
+	
+xq = zeros(length(x), 1);
+%Ekfwnisi leei na dialeksoume tuxaio sunolo epipedwn
+%antistoixou omoiomorfou quantizer (here: my_quantizer)
+	[xq, centers,d] = my_quantizer(x, N, min_value, max_value);
+	D(1) = d;
+	%Lloyd-Max 100 iterations (orizoume M=100)
+	for k = 2:100
+		for j = 1:2^N-1
+			T(j)=(centers(j)+centers(j+1))/2;
+		end
+		
+		points=[min_value T max_value];
+		for i = 1:length(x)
+			for j = 1:2^N
+				if (x(i)>=points(j) && x(i)<=points(j+1))
+					xq(i) = j;
+					break;
+				end
+			end
+		end
+		
+		D(k)=mean((x-centers(xq)).^2);
+		%New quant. levels
+		for i = 1:2^N
+			temp = find(xq == i);
+			if ~isempty(temp)
+				centers(i)=mean(x(temp));
+			end
+			%Break if D too low
+			if (abs(D(k)-D(k-1))<1e-30)
+			break
+			end
+		end
+	end
+end
+
+function [xq,centers,D,p] = my_quantizer(x,N,min_value,max_value)
+	%xq : quantized output
+	%centers: centers of quantized areas
+	%D : mean Paramorfwsh
+	if x < min_value
+		x = min_value;
+	elseif x > max_value
+		x = max_value;
+	end
+	p = zeros(2^N, 1);
+	%compute delta
+	step = (max_value - min_value)/2^N;
+	% upper and lower quantize limits
+	upper_limit(1) = max_value;
+	lower_limit(1) = upper_limit(1) - step;
+	for i= 2:2^N
+		lower_limit(i) = lower_limit(i-1) - step;
+		upper_limit(i) = upper_limit(i-1) - step;
+	end
+	
+	%compute centers
+	centers = zeros(2^N,1);
+	for i = 1:2^N
+		centers(i) = ( upper_limit(i) + lower_limit(i) ) / 2;
+		z = normcdf([centers(i)-step/2,centers(i)+step/2]);
+		p(i) = max(z)-min(z);
+	end
+	%compute quantized output
+	xq = zeros(length(x),1);
+	for i=1:length(x)
+		for j=1
+			if x(i) >= lower_limit(j) && x(i) <= upper_limit(j)
+				xq(i) = j;
+			end
+		end
+		for j=2:2^N
+			if x(i) >= lower_limit(j) && x(i) < upper_limit(j)
+				xq(i) = j;
+			end
+		end
+	end
+	%Compute D
+	D = mean((x - xq).^2);
+end
+
+
