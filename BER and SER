@@ -1,0 +1,14 @@
+function BER = BER(input, output,M)
+   L_input = length (input);
+   modular = mod (L_input, log2 (M));
+   if modular ~= 0
+       add_on = log2 (M) - modular;
+       input(L_input + add_on) = input(L_input);
+       input(L_input) = 0 ;
+   end
+   BER = sum(input ~= output)/ length (output);
+end
+
+function SER = ser (input, output)
+   SER = nnz(output' - input);
+end
