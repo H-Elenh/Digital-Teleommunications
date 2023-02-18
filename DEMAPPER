@@ -1,0 +1,9 @@
+function rb = demapper (symbols, encoding, gray)
+   if gray == 1
+       symbols = gray2bin(symbols, 'pam' , encoding);
+   end
+   rb = dec2bin(symbols);
+   [m, n] = size (rb);
+   rb= reshape (rb', m*n, 1 );
+   rb= double(rb) - 48 ;
+end
