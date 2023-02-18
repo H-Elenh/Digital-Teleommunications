@@ -1,0 +1,47 @@
+function [BER , SER] = main (in_b, M, SNR, gray)
+   sa = mapper(in_b, M , gray);
+   sig_m = modulator(sa, M);
+   in_signal = noise(sig_m,SNR,M);
+   r = demodulator(in_signal);
+   E = detector(r, M);
+   out_b = demapper(E', M, gray);
+   BER = ber(in_b,out_b,M);
+   if nargout >= 2
+     SER = ser(sa, E);
+   end
+end
+
+bin_in = randsrc( 100000 , 1 , [ 0 , 1 ]);
+i = 1 ;
+x = ( 0 : 2 : 20 );
+for SNR = 0 : 2 : 20
+M = 4 ;
+BER_4_pam_without_gray( i , 1 ) = main(bin_in, M, SNR, 0 );
+M = 8 ;
+BER_8_pam_without_gray( i , 1 ) = main(bin_in, M, SNR, 0 );
+BER_8_pam_gray( i , 1 ) = main(bin_in, M, SNR, 1 );
+i = i + 1 ;
+end
+semilogy(x', BER_4_pam_without_gray, 'mp-' ,x', BER_8_without_gray, 'ks-' ,x',BER_8_pam_no_gray, 'gh-' );
+legend( '4-PAM without Gray' , '8-PAM w Gray' , '8-PAM w/o Gray' );
+title( 'BER' );
+xlabel( 'SNR(dB)' );
+ylabel( 'BER' );
+
+bin_in = randsrc( 100000 , 1 , [ 0 , 1 ]);
+i = 1 ;
+x = ( 0 : 2 : 20 );
+for SNR = 0 : 2 : 20
+M = 4 ;
+[~, SER_4_pam_without_gray( i , 1 )] = main(bin_in, M, SNR, 0 );
+M = 8 ;
+[~, SER_8_pam_without_gray( i , 1 )] = main(bin_in, M, SNR, 0 );
+[~, SER_8_pam_gray( i , 1 )] = main(bin_in, M, SNR, 1 );
+i = i + 1 ;
+end
+semilogy(x', SER_4_pam_without_gray, 'mp-' ,x', SER_8_pam_gray, 'ks-' ,x',
+SER_8_pam_without_gray, 'gh-' );
+legend( '4-PAM without Gray' , '8-PAM with Gray' , '8-PAM without Gray' );
+title( 'Symbol Rate Error' );
+xlabel( 'SNR(dB)' );
+ylabel( 'SER' );
