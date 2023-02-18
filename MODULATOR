@@ -1,0 +1,14 @@
+function s_m = modulator(symb, M)
+   size_symb = length (symb);
+   T_symbol = 4 ;
+   T_sample = 0.1 ;
+   Tc = 0.4 ;
+   Fc = 1 / Tc;
+   Es = 1 ; % Energy per symbol
+   g = sqrt ( 2 * Es / T_symbol);
+   for i = 1 : size_symb
+       for t = 1 : T_symbol/T_sample
+           s_m( i , t) = g * cos ( 2 * pi *Fc*t - 2 * pi *symb( i )/M );
+       end
+   end
+end
